@@ -85,12 +85,6 @@ int main() {
             memset(&dest, 0, sizeof(dest));
             dest.sin_addr.s_addr = ip->daddr;
 
-            // Salta il pacchetto se sorgente O destinazione sono 127.0.0.1
-            // 2130706433 è il valore intero di 127.0.0.1 (Network Byte Order)
-            if (ip->saddr == htonl(INADDR_LOOPBACK) || ip->daddr == htonl(INADDR_LOOPBACK)) {
-                continue; // Salta al prossimo pacchetto nel loop while
-            }
-
             // 5. Layer 4 Decapsulation (TCP or UDP)
             if (ip->protocol == 6) { // TCP
                 const struct tcphdr *tcp = (struct tcphdr *)(buffer + sizeof(struct ethhdr) + ip_header_len);
