@@ -60,7 +60,6 @@ int main() {
         perror("Socket Error (Did you run with sudo?)");
         return 1;
     }
-
     printf("started. Capturing IP packets...\n");
 
     while (1) {
