@@ -11,6 +11,7 @@
 #include "inspect.h"
 #include "composer.h"
 #include "security.h"
+#include "session.h"
 
 /* =============================================================================
  * GLOBAL VARIABLES
@@ -88,6 +89,7 @@ int main(int argc, char *argv[]) {
     
     // Initialize security
     security_init();
+    session_init();
     
     // Initialize modules
     inspect_init();
@@ -118,7 +120,7 @@ int main(int argc, char *argv[]) {
         }
         
         // Show prompt
-        printf("\033[1;36mcoke > \033[0m");
+        printf("\n\033[1;36m[coke]\033[0m\033[1;37m::\033[0m ");
         fflush(stdout);
         
         // Read command
@@ -282,6 +284,89 @@ int main(int argc, char *argv[]) {
                 } else {
                     printf("\033[1;31m[ERROR] Invalid conversation ID\033[0m\n");
                 }
+            }
+        }
+        
+        // ===== SAVE COMMANDS =====
+        
+        else if (strncmp(trimmed, "save ", 5) == 0) {
+            char *arg = trimmed + 5;
+            arg = trim_whitespace(arg);
+            
+            // Check for range: save file.pcap 10-50
+            char filename[128] = {0};
+            uint32_t start = 0, end = 0;
+            
+            if (sscanf(arg, "%127s %u-%u", filename, &start, &end) == 3) {
+                pcap_save_range(filename, start, end);
+            } else if (sscanf(arg, "%127s", filename) == 1) {
+                pcap_save_all(filename);
+            } else {
+                printf("\033[1;31m[ERROR] Usage: save <filename.pcap> [start-end]\033[0m\n");
+            }
+        }
+        
+        // ===== SESSION COMMANDS =====
+        
+        else if (strncmp(trimmed, "session", 7) == 0) {
+            char *arg = trimmed + 7;
+            arg = trim_whitespace(arg);
+            
+            if (strlen(arg) == 0 || strcmp(arg, "list") == 0) {
+                session_list();
+            }
+            else if (strncmp(arg, "save ", 5) == 0) {
+                session_save(trim_whitespace(arg + 5));
+            }
+            else if (strncmp(arg, "load ", 5) == 0) {
+                session_load(trim_whitespace(arg + 5));
+            }
+            else if (strncmp(arg, "delete ", 7) == 0) {
+                session_delete(trim_whitespace(arg + 7));
+            }
+            else {
+                printf("\033[1;33m[SESSION] Commands: list, save <name>, load <name>, delete <name>\033[0m\n");
+            }
+        }
+        
+        // ===== AUTOSAVE COMMANDS =====
+        
+        else if (strncmp(trimmed, "autosave", 8) == 0) {
+            char *arg = trimmed + 8;
+            arg = trim_whitespace(arg);
+            
+            if (strcmp(arg, "on") == 0) {
+                autosave_set_enabled(true);
+            }
+            else if (strcmp(arg, "off") == 0) {
+                autosave_set_enabled(false);
+            }
+            else if (strncmp(arg, "interval ", 9) == 0) {
+                uint32_t interval = (uint32_t)atoi(arg + 9);
+                autosave_set_interval(interval);
+            }
+            else {
+                autosave_config_t *cfg = autosave_get_config();
+                printf("\n  Autosave: %s\n", cfg->enabled ? "\033[1;32mON\033[0m" : "\033[1;31mOFF\033[0m");
+                printf("  Interval: %u seconds\n", cfg->interval_sec);
+                printf("\n  Commands: autosave on/off, autosave interval <seconds>\n\n");
+            }
+        }
+        
+        // ===== EXPORT COMMANDS =====
+        
+        else if (strncmp(trimmed, "export ", 7) == 0) {
+            char *arg = trimmed + 7;
+            arg = trim_whitespace(arg);
+            
+            if (strncmp(arg, "packets ", 8) == 0) {
+                export_packets_text(trim_whitespace(arg + 8));
+            }
+            else if (strncmp(arg, "stats ", 6) == 0) {
+                export_stats(trim_whitespace(arg + 6));
+            }
+            else {
+                printf("\033[1;33m[EXPORT] Commands: export packets <file>, export stats <file>\033[0m\n");
             }
         }
         

@@ -399,7 +399,7 @@ void inspect_enter(void) {
     char cmd[64];
     
     while (state.in_inspect_mode) {
-        printf("\033[1;35minspect [#%u] > \033[0m", state.current_packet_id);
+        printf("\n\033[1;35m[inspect]\033[0m\033[1;37m::\033[0m\033[0;90m#%u\033[0m ", state.current_packet_id);
         
         if (fgets(cmd, sizeof(cmd), stdin) == NULL) {
             break;

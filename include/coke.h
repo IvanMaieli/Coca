@@ -153,6 +153,10 @@ void setup_signals(void);
 FILE* pcap_init(const char* filename);
 void pcap_write_packet(FILE *f, const uint8_t *data, uint32_t length, 
                        struct timeval *ts);
+bool pcap_save_range(const char *filename, uint32_t start_id, uint32_t end_id);
+bool pcap_save_all(const char *filename);
+bool export_packets_text(const char *filename);
+bool export_stats(const char *filename);
 
 /* =============================================================================
  * FORWARD DECLARATIONS FOR NEW MODULES

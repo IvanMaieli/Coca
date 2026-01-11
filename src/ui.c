@@ -6,26 +6,44 @@
 #include "filter.h"
 
 /* =============================================================================
- * UI MODULE
+ * UI MODULE - Clean ASCII-Compatible Design
  * ============================================================================= */
+
+// ANSI color codes
+#define RESET       "\033[0m"
+#define BOLD        "\033[1m"
+#define DIM         "\033[2m"
+
+// Colors
+#define RED         "\033[1;31m"
+#define GREEN       "\033[1;32m"
+#define YELLOW      "\033[1;33m"
+#define BLUE        "\033[1;34m"
+#define MAGENTA     "\033[1;35m"
+#define CYAN        "\033[1;36m"
+#define WHITE       "\033[1;37m"
+#define GRAY        "\033[0;90m"
 
 /**
  * Print application banner
  */
 void print_banner(void) {
     printf("\033[2J\033[H");  // Clear screen
-    printf("\033[1;36m");
     printf("\n");
-    printf("   ██████╗ ██████╗ ██╗  ██╗███████╗\n");
-    printf("  ██╔════╝██╔═══██╗██║ ██╔╝██╔════╝\n");
-    printf("  ██║     ██║   ██║█████╔╝ █████╗  \n");
-    printf("  ██║     ██║   ██║██╔═██╗ ██╔══╝  \n");
-    printf("  ╚██████╗╚██████╔╝██║  ██╗███████╗\n");
-    printf("   ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝\n");
-    printf("\033[0m");
-    printf("\n  \033[1;37mPacket Sniffer v2.0\033[0m");
-    printf("  \033[0;90m│ Raw Socket Engine │ Ctrl+C to stop capture\033[0m\n");
-    printf("  \033[0;90m───────────────────────────────────────────────────────────\033[0m\n");
+    printf(CYAN);
+    printf("     ______      __        \n");
+    printf("    / ____/___  / /_____   \n");
+    printf("   / /   / __ \\/ //_/ _ \\  \n");
+    printf("  / /___/ /_/ / ,< /  __/  \n");
+    printf("  \\____/\\____/_/|_|\\___/   \n");
+    printf(RESET);
+    printf("\n");
+    printf("  " WHITE "Packet Sniffer v2.0" RESET);
+    printf("  " GRAY "|" RESET);
+    printf("  " GREEN "Raw Socket Engine" RESET);
+    printf("  " GRAY "|" RESET);
+    printf("  " YELLOW "Ctrl+C" RESET " to stop\n");
+    printf("  " GRAY "------------------------------------------------------" RESET "\n");
     printf("\n");
 }
 
@@ -34,39 +52,55 @@ void print_banner(void) {
  */
 void print_help(void) {
     printf("\n");
-    printf("  \033[1;36m╔══════════════════════════════════════════════════════════════╗\033[0m\n");
-    printf("  \033[1;36m║                          COMMANDS                            ║\033[0m\n");
-    printf("  \033[1;36m╠══════════════════════════════════════════════════════════════╣\033[0m\n");
-    printf("  \033[1;36m║\033[0m  \033[1;32mCapture:\033[0m                                                   \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    start              Start packet capture                   \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    stop               Stop packet capture (or Ctrl+C)       \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m                                                              \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m  \033[1;33mFiltering:\033[0m                                                 \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    filter <protos>    Set filter (e.g., \"filter tcp,udp\")   \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    filter clear       Remove all filters                    \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    filter show        Display current filters               \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m                                                              \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m  \033[1;35mInspect:\033[0m                                                   \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    inspect            Enter packet inspection mode          \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    show <id>          Show packet details                   \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    list [n]           List last n packets (default 20)     \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m                                                              \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m  \033[1;34mCompose:\033[0m                                                   \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    compose            List all conversations                \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    compose <id>       Show conversation details             \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    compose stats      Conversation statistics               \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    compose export <id> <file>  Export conversation          \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m                                                              \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m  \033[1;37mOther:\033[0m                                                     \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    hex                Toggle hex dump view                  \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    status             Show capture status                   \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    clear              Clear screen                          \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    help               Show this help                        \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m║\033[0m    exit               Quit                                  \033[1;36m║\033[0m\n");
-    printf("  \033[1;36m╚══════════════════════════════════════════════════════════════╝\033[0m\n");
+    printf("  " CYAN "============================================================" RESET "\n");
+    printf("  " CYAN "|" RESET WHITE "                     COMMAND REFERENCE                    " RESET CYAN "|" RESET "\n");
+    printf("  " CYAN "============================================================" RESET "\n");
     printf("\n");
-    printf("  \033[1;37mProtocols:\033[0m tcp, udp, icmp, arp, dns, http, https/tls, ssh\n");
+    
+    // Capture
+    printf("  " GREEN "[CAPTURE]" RESET "\n");
+    printf("    " WHITE "start" RESET "              Start sniffing packets\n");
+    printf("    " WHITE "stop" RESET "               Stop capture (or Ctrl+C)\n");
     printf("\n");
+    
+    // Filtering
+    printf("  " YELLOW "[FILTERING]" RESET "\n");
+    printf("    " WHITE "filter <protos>" RESET "    Set filter (e.g., " DIM "filter tcp,udp,dns" RESET ")\n");
+    printf("    " WHITE "filter clear" RESET "       Remove all filters\n");
+    printf("    " WHITE "filter show" RESET "        Display active filters\n");
+    printf("\n");
+    
+    // Inspect
+    printf("  " MAGENTA "[INSPECT]" RESET "\n");
+    printf("    " WHITE "inspect" RESET "            Enter interactive inspection mode\n");
+    printf("    " WHITE "show <id>" RESET "          Show packet details\n");
+    printf("    " WHITE "list [n]" RESET "           List last n packets (default 20)\n");
+    printf("\n");
+    
+    // Compose
+    printf("  " BLUE "[COMPOSE]" RESET "\n");
+    printf("    " WHITE "compose" RESET "            List all conversations\n");
+    printf("    " WHITE "compose <id>" RESET "       Show conversation details\n");
+    printf("    " WHITE "compose stats" RESET "      Traffic statistics\n");
+    printf("\n");
+    
+    // Other
+    printf("  " WHITE "[OTHER]" RESET "\n");
+    printf("    " WHITE "hex" RESET "      Toggle hex dump    " WHITE "status" RESET "   Show status\n");
+    printf("    " WHITE "clear" RESET "    Clear screen       " WHITE "exit" RESET "     Quit\n");
+    printf("\n");
+    
+    printf("  " CYAN "============================================================" RESET "\n");
+    printf("\n");
+    printf("  " WHITE "Protocols:" RESET " ");
+    printf(GREEN "tcp" RESET ", ");
+    printf(BLUE "udp" RESET ", ");
+    printf(YELLOW "icmp" RESET ", ");
+    printf(MAGENTA "arp" RESET ", ");
+    printf(CYAN "dns" RESET ", ");
+    printf(GREEN "http" RESET ", ");
+    printf(YELLOW "tls" RESET ", ");
+    printf(RED "ssh" RESET "\n\n");
 }
 
 /**
@@ -74,21 +108,33 @@ void print_help(void) {
  */
 void print_status(void) {
     printf("\n");
-    printf("  \033[1;36m═══ STATUS ═══\033[0m\n");
-    printf("    Sniffing:        %s\n", is_sniffing ? "\033[1;32mACTIVE\033[0m" : "\033[1;31mSTOPPED\033[0m");
-    printf("    Packets captured: %u\n", state.packets_captured);
-    printf("    Packets filtered: %u\n", state.packets_filtered);
-    printf("    Conversations:    %u\n", state.conversations_count);
-    printf("    Hex dump:         %s\n", config.hex_view ? "ON" : "OFF");
+    printf("  " CYAN "==================== STATUS ====================" RESET "\n\n");
     
-    if (config.filter_mask != PROTO_ALL) {
+    // Sniffing status
+    printf("    Sniffing:        ");
+    if (is_sniffing) {
+        printf(GREEN "[ACTIVE]" RESET "\n");
+    } else {
+        printf(RED "[STOPPED]" RESET "\n");
+    }
+    
+    // Statistics
+    printf("    Packets captured: " GREEN "%u" RESET "\n", state.packets_captured);
+    printf("    Packets filtered: " YELLOW "%u" RESET "\n", state.packets_filtered);
+    printf("    Conversations:    " CYAN "%u" RESET "\n", state.conversations_count);
+    printf("    Hex dump:         %s\n", config.hex_view ? GREEN "ON" RESET : RED "OFF" RESET);
+    
+    // Filter
+    printf("    Active filter:    ");
+    if (config.filter_mask == PROTO_ALL) {
+        printf(DIM "none (accepting all)" RESET "\n");
+    } else {
         char filter_desc[128];
         filter_describe(config.filter_mask, filter_desc, sizeof(filter_desc));
-        printf("    Active filter:    %s\n", filter_desc);
-    } else {
-        printf("    Active filter:    NONE (accepting all)\n");
+        printf(YELLOW "%s" RESET "\n", filter_desc);
     }
-    printf("\n");
+    
+    printf("\n  " CYAN "================================================" RESET "\n\n");
 }
 
 /**
@@ -99,11 +145,21 @@ void hex_dump(const unsigned char *data, int size) {
     int i, j;
     ascii[16] = '\0';
 
-    printf("\033[0;37m");
+    printf(GRAY);
+    printf("\n");
+    printf("         00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F   ASCII\n");
+    printf("         -------------------------------------------------------\n");
+    
     for (i = 0; i < size; ++i) {
         if (i % 16 == 0) {
-            printf("   0x%04x: ", i);
+            printf("  %04x:  ", i);
         }
+        
+        // Add extra space in middle
+        if (i % 16 == 8) {
+            printf(" ");
+        }
+        
         printf("%02X ", data[i]);
         
         if (isprint(data[i])) {
@@ -113,14 +169,16 @@ void hex_dump(const unsigned char *data, int size) {
         }
 
         if ((i + 1) % 16 == 0) {
-            printf("  |%s|\n", ascii);
+            printf("  %s\n", ascii);
         } else if (i + 1 == size) {
             ascii[(i + 1) % 16] = '\0';
+            // Pad remaining hex positions
             for (j = (i + 1) % 16; j < 16; ++j) {
                 printf("   ");
+                if (j == 8) printf(" ");
             }
-            printf("  |%s|\n", ascii);
+            printf("  %s\n", ascii);
         }
     }
-    printf("\033[0m\n");
+    printf(RESET "\n");
 }
